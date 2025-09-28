@@ -66,8 +66,19 @@
 
   /* barra de checkout */
   .bar{position:sticky;bottom:0;left:0;right:0;background:rgba(10,14,28,.9);backdrop-filter:blur(6px);
-       border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+       border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
   .bar .sum{font-weight:800}
+  .bar .left{display:flex;flex-direction:column;gap:6px}
+
+  /* pagamento (pílulas) */
+  .pay{display:flex;gap:6px;flex-wrap:wrap}
+  .pill{position:relative}
+  .pill input{position:absolute;opacity:0;pointer-events:none}
+  .pill span{
+    display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid #2a315f;
+    background:transparent;color:var(--text);font-weight:800;cursor:pointer;font-size:13px
+  }
+  .pill input:checked + span{background:var(--btn);color:#052015;border-color:transparent}
 
   /* BOTÃO ADM (flutuante no cantinho) */
   .adm-btn{
@@ -127,7 +138,15 @@
 
     <!-- barra de checkout -->
     <div class="bar" id="bar" style="display:none">
-      <div><span id="qtd">0</span> item(ns) • <span id="total" class="sum">R$ 0,00</span></div>
+      <div class="left">
+        <div><span id="qtd">0</span> item(ns) • <span id="total" class="sum">R$ 0,00</span></div>
+        <!-- FORMA DE PAGAMENTO -->
+        <div class="pay" role="radiogroup" aria-label="Forma de pagamento">
+          <label class="pill"><input type="radio" name="pg" value="PIX" checked><span>PIX</span></label>
+          <label class="pill"><input type="radio" name="pg" value="Cartão"><span>Cartão</span></label>
+          <label class="pill"><input type="radio" name="pg" value="Dinheiro"><span>Dinheiro</span></label>
+        </div>
+      </div>
       <button id="finalizar" class="btn">finalizar no WhatsApp</button>
     </div>
   </div>
@@ -168,6 +187,7 @@
   let query = '';
   let carrinho = [];
   let autoTimer = null;
+  let formaPagamento = 'PIX';
 
   /* ===== Util ===== */
   const fmt = new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL' });
@@ -287,9 +307,8 @@
       // Navegação de fotos por card + abrir viewer ao clicar
       const thumb = card.querySelector('.thumb');
       const imgEl = thumb.querySelector('img');
-      let idx = 0; // índice atual dessa mini-galeria do card
+      let idx = 0;
 
-      // abrir viewer ao clicar na imagem
       imgEl.addEventListener('click', (e)=>{
         e.stopPropagation();
         openViewer(fotos, idx);
@@ -357,6 +376,12 @@
 
   /* ===== Carrinho / WhatsApp ===== */
   const bar = $('#bar'), qtdEl = $('#qtd'), totalEl = $('#total');
+
+  // forma de pagamento: monitora os rádios
+  document.querySelectorAll('input[name="pg"]').forEach(inp=>{
+    inp.addEventListener('change', ()=>{ if(inp.checked) formaPagamento = inp.value; });
+  });
+
   function addCarrinho(p){
     const id = p.id || p.titulo;
     const found = carrinho.find(i=>i.id===id);
@@ -373,7 +398,8 @@
   $('#finalizar').onclick = () => {
     const linhas = carrinho.map(i => `${i.qtd}x ${i.titulo} — ${fmt.format(i.preco)}`).join('\n');
     const total = fmt.format(carrinho.reduce((s,i)=>s+i.preco*i.qtd,0));
-    const msg = `Olá! Quero finalizar a compra:%0A%0A${encodeURIComponent(linhas)}%0A%0ATotal: ${encodeURIComponent(total)}`;
+    const msg =
+      `Olá! Quero finalizar a compra:%0A%0A${encodeURIComponent(linhas)}%0A%0ATotal: ${encodeURIComponent(total)}%0AForma de pagamento: ${encodeURIComponent(formaPagamento)}`;
     window.open(`https://wa.me/${numeroWA}?text=${msg}`, '_blank');
   };
 
