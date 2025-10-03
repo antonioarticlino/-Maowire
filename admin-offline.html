@@ -27,14 +27,23 @@
   .thumb button{position:absolute;top:6px;right:6px;background:#0009;color:#fff;border:0;border-radius:8px;padding:4px 6px;cursor:pointer}
   .muted{color:var(--muted);font-size:13px}
   .ok{color:var(--ok);font-weight:700}
-  .btn{padding:12px 16px;border-radius:12px;border:1px solid #2a315f;background:#162044;color:var(--text);cursor:pointer}
+  .btn{padding:12px 16px;border-radius:12px;border:1px solid #2a315f;background:#162044;color:var(--text);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
   .btn.primary{background:linear-gradient(90deg,#6ee7b7,#34d399);color:#04170f;border:0;font-weight:800}
   textarea#codigo{width:100%;min-height:140px;margin-top:12px;font-family:ui-monospace,Consolas,monospace}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .topbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:12px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Admin Offline — produto com imagens embutidas (Base64)</h1>
+  <div class="topbar">
+    <h1 style="margin:0">Admin Offline — produto com imagens embutidas (Base64)</h1>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <!-- Botões úteis no topo -->
+      <a class="btn" href="index.html" title="Voltar para a loja">← Voltar à Loja</a>
+      <a class="btn primary" href="admin-gerenciar.html" title="Abrir tela de gestão">Ir para Gerenciar</a>
+    </div>
+  </div>
 
   <div class="card">
     <div class="row">
@@ -85,15 +94,18 @@
     <div class="muted">Compacto & embuto em Base64. Limite recomendado: ~900 KB totais por produto.</div>
     <div id="listaFotos" class="grid"></div>
 
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+    <div class="actions" style="margin-top:16px">
       <button class="btn" id="limpar">Limpar</button>
       <button class="btn primary" id="gerar">Gerar código .js</button>
     </div>
 
     <div id="msg" class="muted" style="margin-top:8px">Pronto para gerar.</div>
     <textarea id="codigo" readonly placeholder="// o código aparecerá aqui para você copiar"></textarea>
-    <div style="margin-top:8px">
+
+    <div class="actions" style="margin-top:8px">
       <button class="btn" id="baixar" disabled>Baixar produtos.js</button>
+      <!-- Botão solicitado que leva para admin-gerenciar.html -->
+      <a href="admin-gerenciar.html" class="btn primary" id="irGerenciar">Ir para Gerenciar</a>
     </div>
   </div>
 </div>
@@ -186,8 +198,8 @@
     const produto = {
       titulo,
       preco,
-      categoria,       // <-- incluído
-      descricao,       // <-- incluído
+      categoria,       // incluído
+      descricao,       // incluído
       fotos: fotos,    // data URLs
       criadoEm: new Date().toISOString()
     };
@@ -216,7 +228,7 @@ window.PRODUTOS.push(${JSON.stringify(produto,null,2)});`;
     document.getElementById('titulo').value='';
     document.getElementById('preco').value='';
     document.getElementById('descricao').value='';
-    document.getElementById('categoria').selectedIndex = 0; // volta para "Selecione a categoria"
+    document.getElementById('categoria').selectedIndex = 0;
   };
 </script>
 </body>
